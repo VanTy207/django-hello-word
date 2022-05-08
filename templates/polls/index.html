@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello Django</title>
+</head>
+<body>
+<h3>Hello Nguyen Van Ty</h3>
+<p>Welcome Django</p>
+<p>Họ tên: {{ name }}</p>
+<p>Title: {{ title }}</p>
+<ul>
+   {% for item in list_question %}
+       <li>Question {{ item.id }}: {{ item.question_text }}: {{ item.question_display }}
+          <br/> Status:
+           {% if item.active == True %}
+               Ok nè
+           {% endif %}
+           {% if item.active == False %}
+               K Ok
+           {% endif %}
+       </li>
+   {% endfor %}
+</ul>
+
+<b>
+    {{ choice_question }}
+</b>
+
+<p>Choice field</p>
+
+</body>
+</html>
