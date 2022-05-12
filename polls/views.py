@@ -18,10 +18,10 @@ def demoJson(request):
         'vietnam': 'Xin chào Django',
         'list': ['question 1', 'question 2', 'question 3']
     }
-    # dump = json.dumps(data, ensure_ascii=False).encode('utf8')
-    return JsonResponse(data, safe=True, json_dumps_params={'ensure_ascii': False},
-                        content_type="application/json; charset=utf-8")
-    # return HttpResponse(dump, content_type="application/json; charset=utf-8",)
+    dump = json.dumps(data, ensure_ascii=False).encode('utf8')
+    # return JsonResponse(data, safe=True, json_dumps_params={'ensure_ascii': False},
+    #                     content_type="application/json; charset=utf-8",)
+    return HttpResponse(dump, content_type="application/json; charset=utf-8", status=200,)
 
 
 def createQuestion(request):
