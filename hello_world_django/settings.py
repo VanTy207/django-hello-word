@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-pp+wf3v4-gx2#ia12lof=i2=ww*i%a9ur0+yh(e!m-6$%eia#q
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    # '127.0.0.1',
+    '127.0.0.1',
     # '0.0.0.0',
 ]
 
@@ -41,7 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000'
+]
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = 'hello_world_django.urls'
