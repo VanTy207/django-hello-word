@@ -2,8 +2,22 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from typing import Optional, List
+from enum import Enum
+from django.core.paginator import Paginator
+
+
+class QuestionSortField(Enum):
+    TIME = 1
+    NAME = 2
+    RATING = 3
+
+
+class SortType(Enum):
+    ASC = 1
+    DESC = 2
 
 
 class QuestionManager(models.Manager):
@@ -13,19 +27,65 @@ class QuestionManager(models.Manager):
 
     def get_all_question(self) -> List['Question']:
         list_question = self.all()
+        print(len(list_question))
         return list_question
 
-    def get_question_detail(self, id:int) -> Optional['Question']:
+    def get_question_detail(self, id: int) -> Optional['Question']:
         try:
             return self.get(id=id)
         except ObjectDoesNotExist:
             print("Either the entry or blog doesn't exist.")
 
-    def filter_question(self, active) -> List['Question']:
-        return self.filter(active=True, question_display__startswith='What')
+    def filter_question(self, type_sort: QuestionSortField, sort: SortType, value: str or None, rating: int or None, month: str or None, page: int, page_size: int = 10) -> List['Question']:
+        print('type_sort ', type_sort)
+        print('sort ', sort)
+        print('value ', value)
+        print('rating ', rating)
+        print('page ', page)
+        print('month ', month)
 
-    def natural_key(self):
-        return self.natural_key()
+        list_question: List['Question'] = []
+        request = Q()
+
+        if type_sort == QuestionSortField.TIME:
+            if month is not None:
+                if value is not None:
+                    request |= Q(pub_date__month=month)
+                    queryValue = Q(question_display__startswith=value) or Q(question_text__startswith=value)
+                    list_question = self.filter(queryValue, request).order_by('pub_date')
+                else:
+                    list_question = self.filter(Q(pub_date__month=month)).order_by('pub_date')
+            else:
+                list_question = self.all().order_by('-pub_date')
+
+        elif type_sort == QuestionSortField.RATING:
+            if rating is not None:
+                if value is not None:
+                    request |= Q(rating=rating)
+                    queryValue = Q(question_display__startswith=value) or Q(question_text__startswith=value)
+                    if sort == SortType.ASC:
+                        list_question = self.filter(queryValue, request).order_by('id')
+                    elif sort == SortType.DESC:
+                        list_question = self.filter(queryValue, request).order_by('-id')
+                else:
+                    if sort == SortType.ASC:
+                        list_question = self.filter(Q(rating=rating),).order_by('id')
+                    elif sort == SortType.DESC:
+                        list_question = self.filter(Q(rating=rating)).order_by('-id')
+            else:
+                if sort == SortType.ASC:
+                    list_question = self.all().order_by('rating', 'id')
+                elif sort == SortType.DESC:
+                    list_question = self.all().order_by('-rating', '-id')
+
+        else:
+            if value is not None:
+                request |= Q(question_display__startswith=value) or Q(question_text__startswith=value)
+                list_question = self.filter(request)
+            else:
+                list_question = self.all().order_by('id')
+
+        return list_question[(page * page_size):((page * page_size) + page_size)]
 
 
 class ChoiceManager(models.Manager):
@@ -54,16 +114,6 @@ class Question(models.Model):
     )
 
     objects = QuestionManager()
-
-    @classmethod
-    def create(cls, question_text, pub_date, rating, question_display, active, year_in_school):
-        question = cls(question_display=question_display, question_text=question_text,
-                       pub_date=pub_date, rating=rating, active=active,
-                       year_in_school=year_in_school)
-        return question
-
-    def natural_key(self):
-        return self.question_display, self.question_text, self.rating
 
     def __str__(self):
         return self.question_text
